@@ -1,0 +1,5 @@
+#!/bin/bash
+
+.  "${SCRIPT_LIB_ROOT:=/var/lib/safescript}/libsafescript.sh"
+
+run_script "${@}"

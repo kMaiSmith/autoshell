@@ -1,0 +1,5 @@
+#!/usr/bin/env safescript
+
+__script_exec() {
+    echo  "hello world"
+}
