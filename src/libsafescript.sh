@@ -5,15 +5,18 @@ run_script() ( configure_shell
     local _args=("${@:2}")
 
     local _script_file
-    _script_file="$(find_script ${_script_name})" || \
-        error "run_script: Cannot find script \"${_script_name}\""
+    _script_file="$(which "${_script_name}")" || \
+        error "run_script: could not find executable script: ${_script_name}"
 
     include_script "${_script_file}" || \
-        error "run_script: Cannot load script \"${_script_name}\""
+        error "run_script: could not load script: ${_script_file}"
+
+    [ "$(type -t __script_exec)" = "function" ] || \
+        error "${_script_name}: malformed script: __script_exec() is not defined"
 
     trap "invoke_optionally __script_cleanup" EXIT
 
-    invoke_optionally __script_parse_opts "${_script_args[@]}" || \
+    invoke_optionally __script_parse_opts "${_args[@]}" || \
         error "run_script: Script could not parse arguments"
 
     invoke_optionally __script_init || \
@@ -21,34 +24,48 @@ run_script() ( configure_shell
 
     __script_exec && \
         invoke_optionally __script_succeed || \
-        error "run_script: Script execution failed" "invoke_optionally __script_failed"
+        invoke_optionally __script_failed || \
+        error "Script execution failed"
 )
 
-find_script() {
-    local _script_name="${1}"
-    local _script_file
-
-    while read -s _script_file; do
-        is_script "${_script_file}" || \
-            continue
-
-        echo "${_script_file}"
-        break
-    done < <(echo "${_script_name}"; find ${PATH//:/\/ } -name "${_script_name}")
-}
+declare -x SAFESCRIPT_SCRIPT_FUNCS=\
+"__script_parse_opts "+\
+"__script_init "+\
+"__script_exec "+\
+"__script_succeed "+\
+"__script_failed "+\
+"__script_cleanup"
 
 include_script() {
     local _script_file="${1}"
 
-    is_script "${_script_file}" || \
+    [ -f "${_script_file}" ] || \
+        error "include_script: ${_script_file} not found"
+
+    [[ "$(file "${_script_file}")" = *"safescript script"* ]] || \
         error "include_script: ${_script_file}: Not a safescript file"
 
-    . "${_script_file}"
-}
+    for _func in ${SAFESCRIPT_SCRIPT_FUNCS}; do
+        unset -f "${_func}"
+    done
 
-is_script() {
-    [ -f "${_script_file}" ] && \
-    [[ "$(file "${_script_file}")" = *"safescript script"* ]]
+    _cleanup() {
+        trap - DEBUG RETURN
+        shopt -u extdebug
+        unset -f _cleanup _detective
+    }
+    trap _cleanup RETURN
+
+    _detective() {
+        [ "${BASH_COMMAND}" = '. "${_script_file}"' ] || {
+            log ERROR "include_script: Unexpected naked command call: \"${BASH_COMMAND}\""
+            return 2
+        }
+    }
+    shopt -s extdebug
+    trap _detective DEBUG
+
+    . "${_script_file}"
 }
 
 # Runs a function if it is defined, does nothing if it is not
@@ -56,7 +73,7 @@ invoke_optionally() {
     local _function="${1}"
     local _args=("${@:2}")
 
-    [  "$(type "${_function}" 2>/dev/null)" = "function" ] || \
+    [  "$(type -t "${_function}")" = "function" ] || \
         return 0
 
     "${_function}" "${_args[@]}"

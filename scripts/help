@@ -1,0 +1,42 @@
+#!/usr/bin/env safescript
+
+__script_help() {
+    cat <<EOM
+===== safescript =====
+
+# Dsscription:
+    SafeScript is a lightweight script standardization engine.  Scripts written
+to the SafeScript codig standards are reasonably guarunteed stable execution
+and easy extensibility.
+
+# How to Use:
+
+# Inputs:
+
+# Side Effects
+
+EOM
+}
+
+__script_parse_opts() {
+    declare -g HELP_SCRIPT="${1}"
+    declare -ag HELP_OPTS=("${@:2}")
+}
+
+__script_init() {
+    declare -g HELP_SCRIPT_FILE
+    HELP_SCRIPT_FILE="$(which "${HELP_SCRIPT}")" || \
+        error "help: cannot find script: ${HELP_SCRIPT}"
+
+    SAFESCRIPT_SCRIPT_FUNCS+=" __script_help"
+}
+
+__script_exec() (
+    include_script "${HELP_SCRIPT_FILE}" || \
+        error "help: could not load script: ${HELP_SCRIPT_FILE}: invalid script"
+
+    [ "$(type -t __script_help)" = "function" ] || \
+        error "${HELP_SCRIPT}: script malformed: __script_help() not defined"
+
+    __script_help "${HELP_OPTS[@]}"
+)

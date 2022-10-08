@@ -1,5 +1,13 @@
 #!/usr/bin/env safescript
 
+__script_help() {
+    cat <<EOM
+===== build =====
+
+# Description:
+EOM
+}
+
 __script_exec() {
-    echo  "hello world"
+    log INFO "hello world"
 }
