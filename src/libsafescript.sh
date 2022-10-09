@@ -35,7 +35,6 @@ declare -x SAFESCRIPT_SCRIPT_FUNCS=\
 "__script_succeed "+\
 "__script_failed "+\
 "__script_cleanup"
-
 include_script() {
     local _script_file="${1}"
 
@@ -84,11 +83,23 @@ configure_shell() {
     set -o pipefail
 }
 
+declare -ix LOG_LEVEL_DEBUG=0
+declare -ix LOG_LEVEL_INFO=1
+declare -ix LOG_LEVEL_WARN=2
+declare -ix LOG_LEVEL_ERROR=3
+declare -ux LOG_LEVEL="${LOG_LEVEL:-INFO}"
 log() {
     local -u _level="${1}"
     local _message="${2}"
 
-    echo "[${_level}] ${_message}"
+    local -n _level_i="LOG_LEVEL_${_level}"
+    local -n _current_level_i="LOG_LEVEL_${LOG_LEVEL}"
+
+    [ -n "${_level_i-}" ] || \
+        error "invalid log level: ${_level}"
+
+    [ ${_level_i} -lt ${_current_level_i:-0} ] || \
+        echo "[${_level}] ${_message}"
 }
 
 error() {
