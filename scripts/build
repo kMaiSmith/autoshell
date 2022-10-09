@@ -8,6 +8,45 @@ __script_help() {
 EOM
 }
 
+__script_init() {
+    rm -rf "${BUILD_ROOT}"
+}
+
 __script_exec() {
-    log INFO "hello world"
+    _build_file_structure || \
+        error "build: could not create build file structure"
+    _copy_files || \
+        error "build: could not copy files"
+    _build_control_file || \
+        error "build: could not build deb control file"
+
+    dpkg-deb --root-owner-group \
+        -b "${BUILD_ROOT}" \
+        "${PROJECT_NAME}-${PROJECT_VERSION}.deb"
+}
+
+_build_file_structure() ( set -e
+    umask 0022
+    mkdir -p "${BUILD_ROOT}"
+    mkdir -p "${BUILD_ROOT}/DEBIAN"
+    mkdir -p "${BUILD_ROOT}/usr/lib/safescript"
+    mkdir -p "${BUILD_ROOT}/usr/bin"
+)
+
+_copy_files() ( set -e
+    cp "${SOURCE_ROOT}/src/safescript" "${BUILD_ROOT}/usr/bin/"
+    cp "${SOURCE_ROOT}/src/libsafescript.sh" "${BUILD_ROOT}/usr/lib/safescript/"
+    chmod 0755 \
+        "${BUILD_ROOT}/usr/bin/safescript" \
+        "${BUILD_ROOT}/usr/lib/safescript/libsafescript.sh"
+)
+
+_build_control_file() {
+    cat <<EOF > "${BUILD_ROOT}/DEBIAN/control"
+Package: ${PROJECT_NAME}
+Version: ${PROJECT_VERSION}
+Maintainer: ${PROJECT_MAINTAINER}
+Description: ${PROJECT_DESCRIPTION}
+Architecture: all
+EOF
 }

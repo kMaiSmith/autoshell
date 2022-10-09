@@ -1,6 +1,0 @@
-#!/bin/bash
-
-declare -gx SCRIPT_LIB_ROOT="${PWD}/src"
-declare -gx PATH="${PWD}/scripts:${PATH}"
-
-src/safescript "${@}"
