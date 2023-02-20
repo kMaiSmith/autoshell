@@ -41,8 +41,8 @@ include_script() {
     [ -f "${_script_file}" ] || \
         error "include_script: ${_script_file} not found"
 
-    [[ "$(file "${_script_file}")" = *"safescript script"* ]] || \
-        error "include_script: ${_script_file}: Not a safescript file"
+    [[ "$(file "${_script_file}")" = *"stsh script"* ]] || \
+        error "include_script: ${_script_file}: Not a Structured Shell file"
 
     for _func in ${SAFESCRIPT_SCRIPT_FUNCS}; do
         unset -f "${_func}"
@@ -109,3 +109,6 @@ error() {
 
     exit 1
 }
+
+[ "${0}" != "${BASH_SOURCE[0]}" ] || \
+    run_script "${@}"

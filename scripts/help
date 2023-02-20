@@ -1,13 +1,13 @@
-#!/usr/bin/env safescript
+#!/usr/bin/env stsh
 
 __script_help() {
     cat <<EOM
-===== safescript =====
+===== stsh =====
 
 # Dsscription:
-    SafeScript is a lightweight script standardization engine.  Scripts written
-to the SafeScript codig standards are reasonably guarunteed stable execution
-and easy extensibility.
+    Structured Shell is a lightweight script standardization engine.  Scripts
+written to the SafeScript codig standards are reasonably guarunteed stable
+execution and easy extensibility.
 
 # How to Use:
 

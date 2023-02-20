@@ -1,5 +1,0 @@
-#!/bin/bash
-
-.  "${SAFESCRIPT_ROOT:=/usr/lib/safescript}/libsafescript.sh"
-
-run_script "${@}"

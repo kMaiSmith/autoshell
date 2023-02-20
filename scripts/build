@@ -1,4 +1,4 @@
-#!/usr/bin/env safescript
+#!/usr/bin/env stsh
 
 __script_help() {
     cat <<EOM
@@ -29,16 +29,13 @@ _build_file_structure() ( set -e
     umask 0022
     mkdir -p "${BUILD_ROOT}"
     mkdir -p "${BUILD_ROOT}/DEBIAN"
-    mkdir -p "${BUILD_ROOT}/usr/lib/safescript"
+    mkdir -p "${BUILD_ROOT}/usr/lib/libstsh"
     mkdir -p "${BUILD_ROOT}/usr/bin"
 )
 
 _copy_files() ( set -e
-    cp "${SOURCE_ROOT}/src/safescript" "${BUILD_ROOT}/usr/bin/"
-    cp "${SOURCE_ROOT}/src/libsafescript.sh" "${BUILD_ROOT}/usr/lib/safescript/"
-    chmod 0755 \
-        "${BUILD_ROOT}/usr/bin/safescript" \
-        "${BUILD_ROOT}/usr/lib/safescript/libsafescript.sh"
+    cp "${SOURCE_ROOT}/src/stsh" "${BUILD_ROOT}/usr/bin/"
+    chmod 0755 "${BUILD_ROOT}/usr/bin/stsh"
 )
 
 _build_control_file() {
