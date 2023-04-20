@@ -6,11 +6,10 @@ set -ue
 declare -x REPO_ROOT AUTOSHELL_SCRIPT_PATH AUTOSHELL_LIB_PATH AUTOSHELL_VERSION
 
 AUTOSHELL_VERSION=""
-REPO_ROOT=$(cd "$(dirname "${0}")" || exit 1; pwd)
-AUTOSHELL_SCRIPT_PATH="${REPO_ROOT}/src/script"
-AUTOSHELL_LIB_PATH="${REPO_ROOT}/src/lib"
+REPO_ROOT="$(cd "$(dirname "${0}")" || exit 1; pwd)"
 
-. "${REPO_ROOT}/src/lib/libautoshell.sh"
+. "${REPO_ROOT}/src/libautoshell.bash"
+initialize_autoshell
 
 log INFO "Success!"
 
