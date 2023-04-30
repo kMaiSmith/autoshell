@@ -39,7 +39,7 @@ include() {
     # Inner function is reached via traps
     # shellcheck disable=SC2317
     _detective() {
-        [ "${BASH_COMMAND}" = ". \"\${_script}\"" ] || {
+        [ "${BASH_COMMAND}" = "source \"\${_script}\"" ] || {
             log error \
                 "${_script}: Unexpected unwrapped call: \"${BASH_COMMAND}\"" \
                 "${FUNCNAME[1]}"
@@ -50,9 +50,10 @@ include() {
     trap _detective DEBUG
 
     # shellcheck source=/dev/null
-    . "${_script}"
+    source "${_script}"
 }
 
+###############################
 # Find the library file in the provided AUTOSHELL_LIB_PATH
 # Globals:
 #   AUTOSHELL_LIB_PATH: Colon-separated list of paths to search for library files
@@ -63,6 +64,7 @@ include() {
 # Returns:
 #   0 => Successfully found the library file
 #   1 => Library file not found
+###############################
 find_lib() {
     local lib_file="lib${1}.bash"
     local path
@@ -71,6 +73,33 @@ find_lib() {
     for path in ${AUTOSHELL_LIB_PATH}; do
         if [ -f "${path}/${lib_file}" ]; then
             echo "${path}/${lib_file}"
+            return 0
+        fi
+    done
+
+    return 1
+}
+
+###############################
+# Find the library file in the provided AUTOSHELL_SCRIPT_PATH
+# Globals:
+#   AUTOSHELL_SCRIPT_PATH: Colon-separated list of paths to search for script files
+# Arguments:
+#   Name of the script
+# Outputs:
+#   The path of the first script file found matching the name
+# Returns:
+#   0 => Successfully found the library file
+#   1 => Library file not found
+###############################
+find_script() {
+    local script_file="${1}"
+    local path
+
+    local IFS=":"
+    for path in ${AUTOSHELL_SCRIPT_PATH}; do
+        if [ -f "${path}/${script_file}" ]; then
+            echo "${path}/${script_file}"
             return 0
         fi
     done

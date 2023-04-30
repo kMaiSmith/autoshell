@@ -8,10 +8,9 @@ initialize_autoshell() {
     AUTOSHELL_SCRIPT_PATH+=":${AUTOSHELL_ROOT}/script"
 
     # Bootstrap safe include functions
-    . "${AUTOSHELL_ROOT}/lib/libautoshell.include.bash"
+    source "${AUTOSHELL_ROOT}/lib/libautoshell.include.bash"
 
     # Include core autoshell functionality
     include "$(find_lib autoshell.log)"
-    include "$(find_lib autoshell.flow)"
-    include "$(find_lib autoshell.script)"
+    include "$(find_lib autoshell.exec)"
 }

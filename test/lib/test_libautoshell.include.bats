@@ -86,3 +86,22 @@ EOM
     [ "${status}" -eq 1 ]
     [ -z "${output}" ]
 }
+
+# Test find_script function
+@test "find_script: finds the first script file in the AUTOSHELL_SCRIPT_PATH" {
+    mkdir -p "${TEST_DIR}/script1" "${TEST_DIR}/script2"
+    touch "${TEST_DIR}/script1/testscript"
+    touch "${TEST_DIR}/script2/testscript"
+    AUTOSHELL_SCRIPT_PATH="${TEST_DIR}/script1:${TEST_DIR}/script2"
+
+    run find_script "testscript"
+    [ "${status}" -eq 0 ]
+    [ "${output}" == "${TEST_DIR}/script1/testscript" ]
+}
+
+@test "find_script: fails when the script file is not found in the AUTOSHELL_SCRIPT_PATH" {
+    AUTOSHELL_SCRIPT_PATH="${TEST_DIR}"
+    run find_script "nonexistentscript"
+    [ "${status}" -eq 1 ]
+    [ -z "${output}" ]
+}

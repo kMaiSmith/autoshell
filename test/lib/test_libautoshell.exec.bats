@@ -1,7 +1,7 @@
 #!/usr/bin/env bats
 
 # Load the libautoshell.sh script
-source "src/lib/libautoshell.flow.bash"
+source "src/lib/libautoshell.exec.bash"
 
 setup() {
     script_file="$(mktemp)"
