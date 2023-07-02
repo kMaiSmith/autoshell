@@ -40,7 +40,7 @@ execute_task() (
     echo -n "${task_name}:" >> "${TASK_EXECUTION_LOG}"
 
     [ "$(type -t task.up_to_date)" = "function" ] && task.up_to_date ||
-        task.exec
+        execute_task_execution
     echo "${task_completion_identifier}" >> "${TASK_EXECUTION_LOG}"
 
     [ "${task_name}" = "${TASK_MAIN}" ] || \
@@ -52,13 +52,14 @@ execute_task() (
 
     execute_task "${next_task_name}"
 )
+export -f execute_task
 
 execute_task_dependencies() {
     # Inner function is reached via traps
     # shellcheck disable=SC2317
     _cleanup_execute_task_dependencies() {
         trap - RETURN
-        unset -f _cleanup_execute_task.dependencies \
+        unset -f _cleanup_execute_task_dependencies \
             depends_on finalized_by
     }
     trap "_cleanup_execute_task_dependencies" RETURN
@@ -84,3 +85,35 @@ execute_task_dependencies() {
 
     task.dependencies
 }
+export -f execute_task_dependencies
+
+execute_task_execution() {
+    [ -f "${task_file/bash/toml}" ] && {
+        # import "$(find_lib autoshell.toml)"
+
+        load_toml "${task_file/bash/toml}"
+    }
+    
+    # Inner function is reached via traps
+    # shellcheck disable=SC2317
+    _cleanup_execute_task_execution() {
+        trap - RETURN
+        unset -f _cleanup_execute_task_execution \
+            task.get_config
+    }
+    trap "_cleanup_execute_task_execution" RETURN
+
+    # Inner function is reached via calls from task.dependencies
+    # shellcheck disable=SC2317
+    task.get_config() { # depends_on_task_name
+        local key_name="${1}"
+
+        declare -g "${key_name}"
+        local -n task_var="${key_name}"
+        local -n config_var="TOML_${task_name/\./\/}_KEY_${key_name}"
+        task_var="${config_var}"
+    }
+
+    task.exec
+}
+export -f execute_task_execution

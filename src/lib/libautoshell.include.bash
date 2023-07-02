@@ -39,7 +39,8 @@ include() {
     # Inner function is reached via traps
     # shellcheck disable=SC2317
     _detective() {
-        [ "${BASH_COMMAND}" = "source \"\${_script}\"" ] || {
+        [ "${BASH_COMMAND}" = "source \"\${_script}\"" ] || \
+        [[ "${BASH_COMMAND}" = "export "* ]] || {
             log error \
                 "${_script}: Unexpected unwrapped call: \"${BASH_COMMAND}\"" \
                 "${FUNCNAME[1]}"
@@ -52,6 +53,7 @@ include() {
     # shellcheck source=/dev/null
     source "${_script}"
 }
+export -f include
 
 ###############################
 # Find the library file in the provided AUTOSHELL_LIB_PATH
@@ -79,6 +81,7 @@ find_lib() {
 
     return 1
 }
+export -f find_lib
 
 ###############################
 # Find the task file in the provided AUTOSHELL_TASK_PATH
@@ -113,3 +116,4 @@ find_task() {
 
     return 1
 }
+export -f find_task

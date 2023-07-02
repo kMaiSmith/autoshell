@@ -37,3 +37,4 @@ log() {
         echo "${_message}"
     }
 }
+export -f log

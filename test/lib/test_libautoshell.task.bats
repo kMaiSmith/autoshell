@@ -4,6 +4,7 @@ bats_require_minimum_version "1.5.0"
 
 source "src/libautoshell.bash"
 source "src/lib/libautoshell.task.bash"
+source "src/lib/libautoshell.toml.bash"
 
 setup() {
     export AUTOSHELL_TASK_PATH="${BATS_TEST_TMPDIR}/tasks"
@@ -18,6 +19,16 @@ build_task() { # task_name
     touch "${task_file}"
 
     echo "${task_file}"
+}
+
+build_task.config() { # task_name
+    local task_file task_config task_name="${1}"
+    task_file="$(build_task "${task_name}")"
+    task_config="${task_file/bash/toml}"
+
+    touch "${task_config}"
+
+    echo "${task_config}"
 }
 
 @test "execute_task: runs the task.exec function of a found task definition" {
@@ -301,4 +312,30 @@ EOT
     [ "${task_executions[0]}" = "${dependency_task_name}" ]
     [ "${task_executions[1]}" = "${main_task_name}" ]
     [ "${task_executions[2]}" = "${final_task_name}" ]
+}
+
+@test "execute_task: provides configuration variables from task config TOML" {
+    task_name="task1"
+
+    expected_task_output="${RANDOM}"
+    cat <<EOT >"$(build_task "${task_name}")"
+#!/usr/bin/env bash
+
+task.exec() {
+    task.get_config test_value
+
+    echo "\${test_value}"
+}
+EOT
+
+    cat <<EOC >"$(build_task.config "${task_name}")"
+[task1]
+test_value = ${expected_task_output}
+EOC
+
+    run -0 execute_task "${task_name}"
+
+    echo "${output}"
+
+    [ "${output}" = "${expected_task_output}" ]
 }

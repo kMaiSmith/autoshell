@@ -16,6 +16,7 @@ try() (
 
     eval "${_expression}"
 )
+export -f try
 
 ###############################
 # Task failed, error out of the current process
@@ -37,3 +38,4 @@ fatal() {
 
     exit 1
 }
+export -f fatal
