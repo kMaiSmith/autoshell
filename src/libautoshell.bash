@@ -2,15 +2,15 @@
 #
 # The basic autoshell framework
 
-initialize_autoshell() {
+[ -d "${AUTOSHELL_ROOT-}" ] || \
     AUTOSHELL_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" || exit 1; pwd)"
+[[ ":${AUTOSHELL_LIB_PATH-}:" == *":${AUTOSHELL_ROOT}/lib:"* ]] || \
     AUTOSHELL_LIB_PATH+=":${AUTOSHELL_ROOT}/lib"
-    AUTOSHELL_SCRIPT_PATH+=":${AUTOSHELL_ROOT}/script"
 
-    # Bootstrap safe include functions
-    source "${AUTOSHELL_ROOT}/lib/libautoshell.include.bash"
+# Minimum helper definitions to get bootstrapped
+include() { source "${1}"; }
+find_lib() { echo "${AUTOSHELL_ROOT}/lib/lib${1}.bash"; }
 
-    # Include core autoshell functionality
-    include "$(find_lib autoshell.log)"
-    include "$(find_lib autoshell.exec)"
-}
+include "$(find_lib autoshell.include)"
+include "$(find_lib autoshell.log)"
+include "$(find_lib autoshell.exec)"

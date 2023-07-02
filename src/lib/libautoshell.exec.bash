@@ -3,28 +3,6 @@
 # Functions for managing execution flows within scripts
 
 ###############################
-# Load and execute an autoshell script
-# Arguments:
-#   Name of script to invoke
-# Returns:
-#   Return value of the scripts execution
-###############################
-invoke_script() {
-    return
-}
-
-###############################
-# Invoke the structured script execution workflow
-# Globals:
-#   script workflow functions imported from a script source file
-# Returns:
-#   Return value of the script workflow execution
-###############################
-process_script_workflow() {
-    return
-}
-
-###############################
 # Try an expression in a subshell, always return gracefully
 # Arguments:
 #   Expression to evaluate in a subshell

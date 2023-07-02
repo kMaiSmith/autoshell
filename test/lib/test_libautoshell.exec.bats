@@ -1,5 +1,7 @@
 #!/usr/bin/env bats
 
+bats_require_minimum_version "1.5.0"
+
 # Load the libautoshell.sh script
 source "src/lib/libautoshell.exec.bash"
 
@@ -19,8 +21,7 @@ teardown() {
 }
 
 @test "try: evaluates an expression with errors and returns gracefully" {
-    run try "non_existent_command"
-    [ "$status" -ne 0 ]
+    run -127 try "non_existent_command"
 }
 
 # Test fatal function

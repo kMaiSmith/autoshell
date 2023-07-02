@@ -87,21 +87,55 @@ EOM
     [ -z "${output}" ]
 }
 
-# Test find_script function
-@test "find_script: finds the first script file in the AUTOSHELL_SCRIPT_PATH" {
-    mkdir -p "${TEST_DIR}/script1" "${TEST_DIR}/script2"
-    touch "${TEST_DIR}/script1/testscript"
-    touch "${TEST_DIR}/script2/testscript"
-    AUTOSHELL_SCRIPT_PATH="${TEST_DIR}/script1:${TEST_DIR}/script2"
+# Test find_task function
+@test "find_task finds the first script file in the AUTOSHELL_TASK_PATH" {
+    mkdir -p "${TEST_DIR}/tasks1/testtask" "${TEST_DIR}/tasks2/testtask"
+    touch "${TEST_DIR}/tasks1/testtask/testtask.bash"
+    touch "${TEST_DIR}/tasks2/testtask/testtask.bash"
+    AUTOSHELL_TASK_PATH="${TEST_DIR}/tasks1:${TEST_DIR}/tasks2"
 
-    run find_script "testscript"
+    run find_task "testtask"
     [ "${status}" -eq 0 ]
-    [ "${output}" == "${TEST_DIR}/script1/testscript" ]
+    [ "${output}" == "${TEST_DIR}/tasks1/testtask/testtask.bash" ]
 }
 
-@test "find_script: fails when the script file is not found in the AUTOSHELL_SCRIPT_PATH" {
-    AUTOSHELL_SCRIPT_PATH="${TEST_DIR}"
-    run find_script "nonexistentscript"
+@test "find_task: fails when the task file is not found in the AUTOSHELL_TASK_PATH" {
+    AUTOSHELL_TASK_PATH="${TEST_DIR}"
+    run find_task "nonexistenttask"
     [ "${status}" -eq 1 ]
     [ -z "${output}" ]
+}
+
+@test "find_task: will find child task directory in the parent task directory" {
+    AUTOSHELL_TASK_PATH="${TEST_DIR}/tasks"
+
+    mkdir -p "${AUTOSHELL_TASK_PATH}/parent1/child1"
+    touch "${AUTOSHELL_TASK_PATH}/parent1/child1/child1.bash"
+
+    run find_task "parent1.child1"
+
+    [ "${output}" = "${AUTOSHELL_TASK_PATH}/parent1/child1/child1.bash" ]
+}
+
+@test "find_task: will find child task files in the parent task directory" {
+    AUTOSHELL_TASK_PATH="${TEST_DIR}/tasks"
+
+    mkdir -p "${AUTOSHELL_TASK_PATH}/parent1"
+    touch "${AUTOSHELL_TASK_PATH}/parent1/child1.bash"
+
+    run find_task "parent1.child1"
+
+    [ "${output}" = "${AUTOSHELL_TASK_PATH}/parent1/child1.bash" ]
+}
+
+@test "find_task prefers child task directories over child task files" {
+    AUTOSHELL_TASK_PATH="${TEST_DIR}/tasks"
+
+    mkdir -p "${AUTOSHELL_TASK_PATH}/parent1/child1"
+    touch "${AUTOSHELL_TASK_PATH}/parent1/child1/child1.bash"
+    touch "${AUTOSHELL_TASK_PATH}/parent1/child1.bash"
+
+    run find_task "parent1.child1"
+
+    [ "${output}" = "${AUTOSHELL_TASK_PATH}/parent1/child1/child1.bash" ]
 }

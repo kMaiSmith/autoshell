@@ -3,16 +3,16 @@
 # Entrypoint for the autoshell.sh scripting framework.
 set -ue
 
-declare -x REPO_ROOT AUTOSHELL_SCRIPT_PATH AUTOSHELL_LIB_PATH AUTOSHELL_VERSION
-
-AUTOSHELL_VERSION=""
 REPO_ROOT="$(cd "$(dirname "${0}")" || exit 1; pwd)"
+AUTOSHELL_ROOT="${REPO_ROOT}/src"
+AUTOSHELL_TASK_PATH="${REPO_ROOT}/tasks"
+export REPO_ROOT AUTOSHELL_ROOT AUTOSHELL_TASK_PATH
 
-. "${REPO_ROOT}/src/libautoshell.bash"
-initialize_autoshell
+source "${AUTOSHELL_ROOT}/libautoshell.bash"
 
-log INFO "Success!"
+include "$(find_lib autoshell.task)"
 
+execute_task "${1}"
 # TODO:
 # load configurations from autoshell.toml using a new library libtoml.sh
 # load and execute a script using libscript.sh
