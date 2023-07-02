@@ -10,6 +10,7 @@ export REPO_ROOT AUTOSHELL_ROOT AUTOSHELL_TASK_PATH
 
 source "${AUTOSHELL_ROOT}/libautoshell.bash"
 
+include "$(find_lib autoshell.toml)"
 include "$(find_lib autoshell.task)"
 
 execute_task "${1}"

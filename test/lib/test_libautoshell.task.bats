@@ -9,6 +9,8 @@ source "src/lib/libautoshell.toml.bash"
 setup() {
     export AUTOSHELL_TASK_PATH="${BATS_TEST_TMPDIR}/tasks"
     export TMPDIR="${BATS_TEST_TMPDIR}"
+
+    cd "${BATS_TEST_TMPDIR}"
 }
 
 build_task() { # task_name
@@ -329,6 +331,37 @@ task.exec() {
 EOT
 
     cat <<EOC >"$(build_task.config "${task_name}")"
+[task1]
+test_value = ${expected_task_output}
+EOC
+
+    run -0 execute_task "${task_name}"
+
+    echo "${output}"
+
+    [ "${output}" = "${expected_task_output}" ]
+}
+
+@test "execute_task: task configuration is overridden by users autotasks.conf" {
+    task_name="task1"
+
+    expected_task_output="${RANDOM}"
+    cat <<EOT >"$(build_task "${task_name}")"
+#!/usr/bin/env bash
+
+task.exec() {
+    task.get_config test_value
+
+    echo "\${test_value}"
+}
+EOT
+
+    cat <<EOC >"$(build_task.config "${task_name}")"
+[task1]
+test_value = default_value
+EOC
+
+    cat <<EOC > "./autotask.toml"
 [task1]
 test_value = ${expected_task_output}
 EOC

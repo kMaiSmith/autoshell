@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+export TASK_USER_CONFIG_PREFIX="TASK_USER_CONFIG"
 execute_task() (
     local \
         task_file="" \
@@ -16,8 +17,10 @@ execute_task() (
         # shellcheck disable=SC2030
         TASK_EXECUTION_LOG="$(mktemp)"
     }
-    [ -n "${TASK_MAIN-}" ] || \
+    [ -n "${TASK_MAIN-}" ] || {
         TASK_MAIN="${task_name}"
+        [ -f "./autotask.toml" ] && load_toml "./autotask.toml" "${TASK_USER_CONFIG_PREFIX}"
+    }
 
     grep -q "^${task_name}:${task_completion_identifier}" "${TASK_EXECUTION_LOG}" && \
         return
@@ -88,10 +91,10 @@ execute_task_dependencies() {
 export -f execute_task_dependencies
 
 execute_task_execution() {
-    [ -f "${task_file/bash/toml}" ] && {
+    local TASK_CONFIG_PREFIX="TASK_CONFIG"
+    [ -f "${task_file/\.bash/\.toml}" ] && {
         # import "$(find_lib autoshell.toml)"
-
-        load_toml "${task_file/bash/toml}"
+        load_toml "${task_file/\.bash/\.toml}" "${TASK_CONFIG_PREFIX}"
     }
     
     # Inner function is reached via traps
@@ -107,11 +110,16 @@ execute_task_execution() {
     # shellcheck disable=SC2317
     task.get_config() { # depends_on_task_name
         local key_name="${1}"
-
         declare -g "${key_name}"
         local -n task_var="${key_name}"
-        local -n config_var="TOML_${task_name/\./\/}_KEY_${key_name}"
-        task_var="${config_var}"
+
+        local -n user_config_var="${TASK_USER_CONFIG_PREFIX}_${task_name/\./\/}_KEY_${key_name}"
+        if [ -n "${user_config_var-}" ]; then
+            task_var="${user_config_var}"
+        else
+            local -n config_var="${TASK_CONFIG_PREFIX}_${task_name/\./\/}_KEY_${key_name}"
+            task_var="${config_var-}"
+        fi
     }
 
     task.exec

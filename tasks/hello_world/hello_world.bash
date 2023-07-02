@@ -6,7 +6,8 @@ task.dependencies() {
 }
 
 task.exec() {
+    task.get_config greeting
     name="$(cat ./myname)"
 
-    log NOTICE "Hello, ${name}!"
+    log NOTICE "${greeting}, ${name}!"
 }
