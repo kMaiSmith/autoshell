@@ -29,12 +29,12 @@ include() {
 
     # Inner function is reached via traps
     # shellcheck disable=SC2317
-    _cleanup() {
+    _cleanup_include() {
         trap - DEBUG RETURN
         shopt -u extdebug
         unset -f _cleanup _detective
     }
-    trap _cleanup RETURN
+    trap _cleanup_include RETURN
 
     # Inner function is reached via traps
     # shellcheck disable=SC2317

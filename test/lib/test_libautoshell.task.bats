@@ -7,6 +7,7 @@ source "src/lib/libautoshell.task.bash"
 
 setup() {
     export AUTOSHELL_TASK_PATH="${BATS_TEST_TMPDIR}/tasks"
+    export TMPDIR="${BATS_TEST_TMPDIR}"
 }
 
 build_task() { # task_name
@@ -130,4 +131,174 @@ EOT
     run -0 execute_task "${task_name}"
 
     [ -z "${output}" ]
+}
+
+@test "execute_task: executes depends_on tasks before executing the named task" {
+    main_task_name="task1"
+    dependency_task_name="dep_task1"
+
+cat <<EOT >"$(build_task "${dependency_task_name}")"
+#!/usr/bin/env bash
+
+task.exec() {
+    echo "${dependency_task_name}"
+}
+EOT
+
+    cat <<EOT >"$(build_task "${main_task_name}")"
+#!/usr/bin/env bash
+
+task.dependencies() {
+    depends_on "${dependency_task_name}"
+}
+
+task.exec() {
+    echo "${main_task_name}"
+}
+EOT
+
+    run execute_task "${main_task_name}"
+
+    echo "${output}"
+
+    readarray -t task_executions <<< "${output}"
+
+    [ "${task_executions[0]}" = "${dependency_task_name}" ]
+    [ "${task_executions[1]}" = "${main_task_name}" ]
+}
+
+@test "execute_task: dependency management does not execute a task more than once per run" {
+    main_task_name="task1"
+    dependency_task_name="dep_task1"
+    dependency_task2_name="dep_task2"
+
+cat <<EOT >"$(build_task "${dependency_task_name}")"
+#!/usr/bin/env bash
+
+task.exec() {
+    echo "${dependency_task_name}"
+}
+EOT
+
+    cat <<EOT >"$(build_task "${dependency_task2_name}")"
+#!/usr/bin/env bash
+
+task.dependencies() {
+    depends_on "${dependency_task_name}"
+}
+
+task.exec() {
+    echo "${dependency_task2_name}"
+}
+EOT
+
+    cat <<EOT >"$(build_task "${main_task_name}")"
+#!/usr/bin/env bash
+
+task.dependencies() {
+    depends_on "${dependency_task_name}"
+    depends_on "${dependency_task2_name}"
+}
+
+task.exec() {
+    echo "${main_task_name}"
+}
+EOT
+
+    run execute_task "${main_task_name}"
+
+    echo "${output}"
+
+    readarray -t task_executions <<< "${output}"
+
+    [ "${task_executions[0]}" = "${dependency_task_name}" ]
+    [ "${task_executions[1]}" = "${dependency_task2_name}" ]
+    [ "${task_executions[2]}" = "${main_task_name}" ]
+}
+
+@test "execute_task: finalized_by dependencies are run after task execution" {
+    main_task_name="task1"
+    final_task_name="final_task1"
+
+cat <<EOT >"$(build_task "${final_task_name}")"
+#!/usr/bin/env bash
+
+task.exec() {
+    echo "${final_task_name}"
+}
+EOT
+
+    cat <<EOT >"$(build_task "${main_task_name}")"
+#!/usr/bin/env bash
+
+task.dependencies() {
+    finalized_by "${final_task_name}"
+}
+
+task.exec() {
+    echo "${main_task_name}"
+}
+EOT
+
+    run execute_task "${main_task_name}"
+
+    echo "${output}"
+
+    readarray -t task_executions <<< "${output}"
+
+    [ "${task_executions[0]}" = "${main_task_name}" ]
+    [ "${task_executions[1]}" = "${final_task_name}" ]
+}
+
+@test "execute_task: finalizers are only run once at the end of main execution" {
+    main_task_name="task1"
+    dependency_task_name="dep_task1"
+    final_task_name="final_task"
+
+cat <<EOT >"$(build_task "${dependency_task_name}")"
+#!/usr/bin/env bash
+
+task.dependencies() {
+    finalized_by "${final_task_name}"
+}
+
+task.exec() {
+    echo "${dependency_task_name}"
+}
+EOT
+
+    cat <<EOT >"$(build_task "${final_task_name}")"
+#!/usr/bin/env bash
+
+task.dependencies() {
+    depends_on "${dependency_task_name}"
+}
+
+task.exec() {
+    echo "${final_task_name}"
+}
+EOT
+
+    cat <<EOT >"$(build_task "${main_task_name}")"
+#!/usr/bin/env bash
+
+task.dependencies() {
+    depends_on "${dependency_task_name}"
+    finalized_by "${final_task_name}"
+}
+
+task.exec() {
+    echo "${main_task_name}"
+}
+EOT
+
+    run execute_task "${main_task_name}"
+
+    echo "${output}"
+
+    readarray -t task_executions <<< "${output}"
+
+    [ "${task_executions[0]}" = "${dependency_task_name}" ]
+    [ "${task_executions[1]}" = "${main_task_name}" ]
+    [ "${task_executions[2]}" = "${final_task_name}" ]
 }
