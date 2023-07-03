@@ -1,6 +1,6 @@
-#!/usr/bin/env bash
+#!/bin/bash
 #
-# Entrypoint for the autoshell.sh task scripting framework.
+# Entrypoint for the autoshell.sh script execution framework.
 set -ue
 
 AUTOSHELL_BIN_ROOT="$(cd "$(dirname "${0}")" || exit 1; pwd)"
@@ -14,7 +14,7 @@ export AUTOSHELL_BIN_ROOT AUTOSHELL_LIB_ROOT
 source "${AUTOSHELL_LIB_ROOT}/libautoshell.bash"
 
 include "$(find_lib autoshell.toml)"
-include "$(find_lib autoshell.task)"
+include "$(find_lib autoshell.script)"
 
 [ "${0}" != "${BASH_SOURCE[0]}" ] || \
-    execute_task "${@}"
+    execute_script "${@}"

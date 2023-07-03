@@ -39,3 +39,15 @@ fatal() {
     exit 1
 }
 export -f fatal
+
+# Runs a function if it is defined, does nothing if it is not
+invoke_optionally() {
+    local _function="${1}"
+    local _args=("${@:2}")
+
+    [  "$(type -t "${_function}")" = "function" ] || \
+        return 0
+
+    "${_function}" "${_args[@]}"
+}
+export -f invoke_optionally

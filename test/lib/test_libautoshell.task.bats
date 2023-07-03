@@ -342,7 +342,7 @@ EOC
     [ "${output}" = "${expected_task_output}" ]
 }
 
-@test "execute_task: task configuration is overridden by users autotasks.conf" {
+@test "execute_task: task configuration is overridden by users project.toml" {
     task_name="task1"
 
     expected_task_output="${RANDOM}"
@@ -361,7 +361,7 @@ EOT
 test_value = default_value
 EOC
 
-    cat <<EOC > "./autotask.toml"
+    cat <<EOC > "./project.toml"
 [task1]
 test_value = ${expected_task_output}
 EOC

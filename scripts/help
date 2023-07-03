@@ -1,12 +1,12 @@
-#!/usr/bin/env stsh
+#!/usr/bin/env bash
 
 __script_help() {
     cat <<EOM
 ===== stsh =====
 
 # Dsscription:
-    Structured Shell is a lightweight script standardization engine.  Scripts
-written to the SafeScript codig standards are reasonably guarunteed stable
+    Structured Autoshell is a script standardization engine.  Scripts
+written to the AutoShell coding standards are reasonably guarunteed stable
 execution and easy extensibility.
 
 # How to Use:

@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+PROJECT_ROOT="$(cd "$(dirname "${0}")" || exit 1; pwd)"
+AUTOSHELL_TASK_PATH="${PROJECT_ROOT}/tasks"
+
+export PROJECT_ROOT AUTOSHELL_TASK_PATH
+
+case "${1}" in
+task)
+    shift; "${PROJECT_ROOT}/src/bin/autotask" "${@}"
+    ;;
+script)
+    shift; "${PROJECT_ROOT}/src/bin/autoscript" "${@}"
+    ;;
+*)
+    cat <<EOM
+Invalid argument: ${1}
+
+Usage: ${0} <task|script> <name> [args...]
+EOM
+    ;;
+esac
+

@@ -16,7 +16,7 @@ well as patterns to make writing human-readable scripts easy.
 
 Autoshell consists of the following components:
 
- - Execution entrypoint `autoshell.sh` for executing
+ - Execution entrypoint `auto` for executing
  - A TOML parsing library (libautoshell.toml.sh) to load configurations from autoshell.toml files.
  - A BATS testing framework to unit and integration test all components.
  - A logging framework for detailed debugging of the Bash scripts.
@@ -25,11 +25,11 @@ Autoshell consists of the following components:
 
 ## Getting Started
 
-Execute the entrypoint script:
+Execute the hello_world task via entrypoint script:
 
 ``` bash
 
-./autoshell.sh
+./auto task hello_world
 ```
 
 ### Key Functions

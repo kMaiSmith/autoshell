@@ -19,7 +19,7 @@ execute_task() (
     }
     [ -n "${TASK_MAIN-}" ] || {
         TASK_MAIN="${task_name}"
-        [ -f "./autotask.toml" ] && load_toml "./autotask.toml" "${TASK_USER_CONFIG_PREFIX}"
+        [ -f "./project.toml" ] && load_toml "./project.toml" "${TASK_USER_CONFIG_PREFIX}"
     }
 
     grep -q "^${task_name}:${task_completion_identifier}" "${TASK_EXECUTION_LOG}" && \
@@ -49,8 +49,10 @@ execute_task() (
     [ "${task_name}" = "${TASK_MAIN}" ] || \
         return 0
 
-    next_task_name="$(grep -v -m1 ".*:${task_completion_identifier}$" "${TASK_EXECUTION_LOG}" | awk -F: '{print $1}')"
-    [ -n "${next_task_name-}" ] || \
+    next_task_name="$(
+        grep -v -m1 ".*:${task_completion_identifier}$" "${TASK_EXECUTION_LOG}" | awk -F: '{print $1}'
+    )" && \
+        [ -n "${next_task_name-}" ] || \
         return 0
 
     execute_task "${next_task_name}"

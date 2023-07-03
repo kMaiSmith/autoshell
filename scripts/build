@@ -1,4 +1,4 @@
-#!/usr/bin/env stsh
+#!/usr/bin/env bash
 
 __script_help() {
     cat <<EOM
