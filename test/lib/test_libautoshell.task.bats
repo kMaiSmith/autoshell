@@ -2,7 +2,7 @@
 
 bats_require_minimum_version "1.5.0"
 
-source "src/libautoshell.bash"
+source "src/lib/libautoshell.bash"
 source "src/lib/libautoshell.task.bash"
 source "src/lib/libautoshell.toml.bash"
 

@@ -1,6 +1,6 @@
 bats_require_minimum_version "1.5.0"
 
-source "src/libautoshell.bash"
+source "src/lib/libautoshell.bash"
 source "src/lib/libautoshell.toml.bash"
 
 @test "load_toml: reads toml values into global bash variables" {

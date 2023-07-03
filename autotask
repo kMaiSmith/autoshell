@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+REPO_ROOT="$(cd "$(dirname "${0}")" || exit 1; pwd)"
+AUTOSHELL_TASK_PATH="${REPO_ROOT}/tasks"
+
+export REPO_ROOT AUTOSHELL_TASK_PATH
+
+"${REPO_ROOT}/src/bin/autotask" "${@}"

@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+#
+# Entrypoint for the autoshell.sh task scripting framework.
+set -ue
+
+AUTOSHELL_BIN_ROOT="$(cd "$(dirname "${0}")" || exit 1; pwd)"
+AUTOSHELL_LIB_ROOT="$(cd "${AUTOSHELL_BIN_ROOT}/../lib" || exit 1; pwd)" || {
+    echo "autotask cannot perform without the matching lib directory"
+    exit 1
+}
+
+export AUTOSHELL_BIN_ROOT AUTOSHELL_LIB_ROOT
+
+source "${AUTOSHELL_LIB_ROOT}/libautoshell.bash"
+
+include "$(find_lib autoshell.toml)"
+include "$(find_lib autoshell.task)"
+
+execute_task "${1}"
