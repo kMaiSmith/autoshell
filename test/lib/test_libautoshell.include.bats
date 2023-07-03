@@ -60,7 +60,6 @@ EOM
 
 # Test find_lib function
 @test "find_lib: successfully finds a library file in the AUTOSHELL_LIB_PATH" {
-    mkdir -p ./temp_lib_dir
     touch "${TEST_DIR}/libtestlib.bash"
     AUTOSHELL_LIB_PATH="${TEST_DIR}"
 
