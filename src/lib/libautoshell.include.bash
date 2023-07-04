@@ -22,11 +22,6 @@ include() {
         return 1
     }
 
-    [[ "$(file "${_script}")" = *"Bourne-Again shell script"* ]] || {
-        log ERROR "${_script}: Not a Bash script"
-        return 1
-    }
-
     # Inner function is reached via traps
     # shellcheck disable=SC2317
     _cleanup_include() {

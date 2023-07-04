@@ -36,15 +36,6 @@ EOM
     [ "${status}" -eq 1 ]
 }
 
-@test "include: fails when the script is not a Bash script" {
-    cat <<EOM > "${TEST_SCRIPT_FILE}"
-This is not a Bash script
-EOM
-
-    run include "${TEST_SCRIPT_FILE}"
-    [ "${status}" -eq 1 ]
-}
-
 @test "include: fails when the script contains more than function definitions" {
     cat <<EOM > "${TEST_SCRIPT_FILE}"
 #!/usr/bin/env bash

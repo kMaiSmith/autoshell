@@ -14,10 +14,11 @@
 # Outputs:
 #   writes the message to stdout with the level and name of calling function
 ###############################
+export LOG_CONTEXT_BUILDER='${CONTEXT:-${FUNCNAME[1]-}}:'
 log() {
     local _level="${1^^}"
     local _message="${2}"
-    local _caller="${3-}"
+    local CONTEXT="${3-}"
 
     [ -n "${LOG_LEVELS-}" ] || declare -Ag LOG_LEVELS=(
             ["TRACE"]=0
@@ -28,13 +29,12 @@ log() {
             ["FATAL"]=50
         )
     [ -n "${LOG_LEVEL-}" ] || declare -g LOG_LEVEL="INFO"
-    [ -n "${_caller}" ] || _caller="${FUNCNAME[1]-}"
 
     # shellcheck disable=SC2086
     [ ${LOG_LEVELS["${_level}"]-99} -lt ${LOG_LEVELS["${LOG_LEVEL}"]-0} ] || {
         echo -n "[${_level}] "
-        echo -n "${_caller:+${_caller}: }"
-        echo "${_message}"
+        eval "echo -n \"${LOG_CONTEXT_BUILDER}\""
+        echo " ${_message}"
     }
 }
 export -f log

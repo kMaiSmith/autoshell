@@ -2,15 +2,16 @@
 
 PROJECT_ROOT="$(cd "$(dirname "${0}")" || exit 1; pwd)"
 AUTOSHELL_TASK_PATH="${PROJECT_ROOT}/tasks"
+PATH="${PROJECT_ROOT}/src/bin:${PATH}"
 
 export PROJECT_ROOT AUTOSHELL_TASK_PATH
 
 case "${1}" in
 task)
-    shift; "${PROJECT_ROOT}/src/bin/autotask" "${@}"
+    shift; autotask "${@}"
     ;;
 script)
-    shift; "${PROJECT_ROOT}/src/bin/autoscript" "${@}"
+    shift; autoscript "${@}"
     ;;
 *)
     cat <<EOM

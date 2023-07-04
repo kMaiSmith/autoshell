@@ -50,7 +50,7 @@ Autoshell utilizes the BATS (Bash Automated Testing System) framework for unit t
 
 ``` bash
 
-bats test/*/
+PATH="${PATH}:${PWD}/src/bin" bats test/*/
 ```
 
 Refer to the test/ directory to see the test cases for each function.

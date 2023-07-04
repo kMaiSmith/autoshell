@@ -1,28 +1,30 @@
 #!/usr/bin/env bash
 
-export SAFESCRIPT_SCRIPT_FUNCS=\
+export \
+    SAFESCRIPT_SCRIPT_FUNCS=\
 "__script_parse_opts "+\
 "__script_init "+\
 "__script_exec "+\
 "__script_succeed "+\
 "__script_failed "+\
-"__script_cleanup"
+"__script_cleanup" \
+    AUTOSCRIPT_SCRIPT_NAME
 execute_script() ( configure_shell
-    local _script_name="${1}"
+    AUTOSCRIPT_SCRIPT_NAME="${1}"
     local _args=("${@:2}")
 
     local _script_file
-    _script_file="$(PATH="${AUTOSHELL_SCRIPT_PATH-}" command -v "${_script_name}")" || \
-        fatal "could not find executable script: ${_script_name}"
+    _script_file="$(PATH="${AUTOSHELL_SCRIPT_PATH-}" command -v "${AUTOSCRIPT_SCRIPT_NAME}")" || \
+        fatal "could not find executable script: ${AUTOSCRIPT_SCRIPT_NAME}"
 
     for _func in ${SAFESCRIPT_SCRIPT_FUNCS}; do
         unset -f "${_func}"
     done
     include "${_script_file}" || \
-        fatal "could not load script: ${_script_file}"
+        fatal "could not load script: ${AUTOSCRIPT_SCRIPT_NAME}"
 
     [ "$(type -t __script_exec)" = "function" ] || \
-        fatal "${_script_name}: malformed script: __script_exec() is not defined"
+        fatal "${AUTOSCRIPT_SCRIPT_NAME}: malformed script: __script_exec() is not defined"
 
     trap "invoke_optionally __script_cleanup" EXIT
 
