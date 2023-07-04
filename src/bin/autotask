@@ -10,7 +10,6 @@ export \
     TASK_EXECUTION_LOG \
     TASK_MAIN \
     TASK_NAME \
-    TASK_COMPLETION_MARK="#" \
     LOG_CONTEXT_BUILDER="autotask:"
 
 __script_parse_opts() {
@@ -23,17 +22,17 @@ __script_parse_opts() {
         TASK_MAIN="${TASK_NAME}"
     [ -n "${TASK_FILE-}" ] || \
         fatal "Task ${TASK_NAME} could not be found in the AUTOSHELL_TASK_PATH"
-    [ -n "${TASK_EXECUTION_LOG-}" ] || \
-        TASK_EXECUTION_LOG="$(mktemp)"
 }
 
 __script_init() {
     include "$(find_lib autotask)"
+    include "$(find_lib autotask.tasklog)"
 
     [ "${TASK_NAME}" = "${TASK_MAIN}" ] && \
         [ -f "./project.toml" ] && load_toml "./project.toml" "${TASK_USER_CONFIG_PREFIX}"
 
-    if grep -q "^${TASK_NAME}:${TASK_COMPLETION_MARK}" "${TASK_EXECUTION_LOG}"; then
+    tasklog.initialize
+    if tasklog.is_complete "${TASK_NAME}"; then
         TASK_SKIP="true"
     fi
 
@@ -49,27 +48,24 @@ __script_init() {
 
     task.load_config
 
-    sed -i "/^${TASK_NAME}:/d" "${TASK_EXECUTION_LOG}"
-    echo -n "${TASK_NAME}:" >> "${TASK_EXECUTION_LOG}"
-
-    # log INFO "Finished initializing ${TASK_NAME}"
+    tasklog.set_entry "${TASK_NAME}"
 }
 
 __script_exec() {
-    # log INFO "executing task ${TASK_NAME}"
-    [ "${TASK_SKIP-}" = "true" ] || \
-    { [ "$(type -t task.up_to_date)" = "function" ] && task.up_to_date; } || \
-        task.exec
+    [ "${TASK_SKIP-}" = "true" ] && return
+
+    [ "$(type -t task.up_to_date)" = "function" ] && task.up_to_date && return
+
+    task.exec
 }
 
 __script_succeed() {
-    echo "${TASK_COMPLETION_MARK}" >> "${TASK_EXECUTION_LOG}"
+    tasklog.set_entry "${TASK_NAME}" "${TASKLOG_COMPLETION_MARK}"
 
     if [ "${TASK_NAME}" = "${TASK_MAIN}" ]; then
         local next_task_name
-        next_task_name="$(
-            grep -v -m1 ".*:${TASK_COMPLETION_MARK}$" "${TASK_EXECUTION_LOG}" | awk -F: '{print $1}'
-        )" && \
+        next_task_name="$(tasklog.get_next_pending)"
+
         [ -n "${next_task_name-}" ] || \
             return 0
 

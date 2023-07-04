@@ -1,17 +1,6 @@
 #!/usr/bin/env bash
 
-export TASK_USER_CONFIG_PREFIX="TASK_USER_CONFIG"
-
 execute_task_dependencies() (
-    # # Inner function is reached via traps
-    # # shellcheck disable=SC2317
-    # _cleanup_execute_task_dependencies() {
-    #     trap - RETURN
-    #     unset -f _cleanup_execute_task_dependencies \
-    #         depends_on finalized_by
-    # }
-    # trap "_cleanup_execute_task_dependencies" RETURN
-
     # Inner function is reached via calls from task.dependencies
     # shellcheck disable=SC2317
     depends_on() { # depends_on_task_name
@@ -25,15 +14,23 @@ execute_task_dependencies() (
     finalized_by() {
         local finalized_by_task_name="${1}"
 
-        # TASK_EXECUTION_LOG needs to be set one-off by the first subsehell
-        #   execution, once set the file name is valid for every subshell
-        # shellcheck disable=SC2031
-        echo "${finalized_by_task_name}:~" >> "${TASK_EXECUTION_LOG}"
+        tasklog.set_entry "${finalized_by_task_name}" "${TASKLOG_PENDING_MARK}"
     }
 
     task.dependencies
 )
 export -f execute_task_dependencies
+
+export \
+    TASK_CONFIG_PREFIX="TASK_CONFIG" \
+    TASK_USER_CONFIG_PREFIX="TASK_USER_CONFIG"
+task.load_config() {
+    [ -f "${TASK_FILE/\.bash/\.toml}" ] && {
+        # import "$(find_lib autoshell.toml)"
+        load_toml "${TASK_FILE/\.bash/\.toml}" "${TASK_CONFIG_PREFIX}"
+    }
+}
+export -f task.load_config
 
 task.get_config() {
     local key_name="${1}"
@@ -49,12 +46,3 @@ task.get_config() {
     fi
 }
 export -f task.get_config
-
-export TASK_CONFIG_PREFIX="TASK_CONFIG"
-task.load_config() {
-    [ -f "${TASK_FILE/\.bash/\.toml}" ] && {
-        # import "$(find_lib autoshell.toml)"
-        load_toml "${TASK_FILE/\.bash/\.toml}" "${TASK_CONFIG_PREFIX}"
-    }
-}
-export -f task.load_config
