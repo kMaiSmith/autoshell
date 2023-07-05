@@ -58,7 +58,7 @@ EOT
 
     echo "${output}"
 
-    [ "${output}" = "[FATAL] autotask: Task ${task_name} could not be found in the AUTOSHELL_TASK_PATH" ]
+    [ "${output}" = "[FATAL] autotask:${task_name}: Task ${task_name} could not be found in the AUTOSHELL_TASK_PATH" ]
 }
 
 @test "autotask: fatally exits when the task file does not include a task.exec() definition" {
@@ -72,7 +72,7 @@ EOT
     run "${AUTOTASK}" "${task_name}"
     echo "${output}"
 
-    [ "${output}" = "[FATAL] autotask: Task file ${task_file} is invalid, task.exec() is not defined" ]
+    [ "${output}" = "[FATAL] autotask:${task_name}: Task file ${task_file} is invalid, task.exec() is not defined" ]
 }
 
 @test "autotask: fatally exits when free code is defined in the task body" {
@@ -87,7 +87,7 @@ EOT
     run ! "${AUTOTASK}" "${task_name}"
     echo "${output}"
 
-    [[ "${output}" == *"[FATAL] autotask: The task file ${task_file} is invalid" ]]
+    [[ "${output}" == *"[FATAL] autotask:${task_name}: The task file ${task_file} is invalid" ]]
 }
 
 @test "autotask: searches all directories in the AUTOSHELL_TASK_PATH" {

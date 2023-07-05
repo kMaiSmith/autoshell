@@ -10,7 +10,7 @@ task.load_config() {
         task_part \
         task="" \
         IFS="."
-    
+
     [ "${task_name}" = "${TASK_MAIN-}" ] && [ -f "./project.toml" ] && \
         toml.load "./project.toml" "${TASK_USER_CONFIG_PREFIX}"
 
