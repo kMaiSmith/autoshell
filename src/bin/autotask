@@ -10,7 +10,8 @@ export \
     TASK_EXECUTION_LOG \
     TASK_MAIN \
     TASK_NAME \
-    LOG_CONTEXT_BUILDER="autotask:"
+    LOG_CONTEXT_BUILDER="autotask:" \
+    AUTOTASK="${AUTOSCRIPT_SCRIPT_NAME}"
 
 __script_parse_opts() {
     TASK_NAME="${1}"
@@ -44,7 +45,7 @@ __script_init() {
         fatal "Task file ${TASK_FILE} is invalid, task.exec() is not defined"
 
     [ "$(type -t task.dependencies)" = "function" ] && \
-        execute_task_dependencies
+        task.execute_dependencies
 
     task.load_config "${TASK_NAME}"
 
@@ -69,6 +70,6 @@ __script_succeed() {
         [ -n "${next_task_name-}" ] || \
             return 0
 
-        autotask "${next_task_name}"
+        execute_script "${AUTOTASK}" "${next_task_name}"
     fi
 }

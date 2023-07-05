@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
-execute_task_dependencies() (
+task.execute_dependencies() (
     # Inner function is reached via calls from task.dependencies
     # shellcheck disable=SC2317
     depends_on() { # depends_on_task_name
         local depends_on_task_name="${1}"
 
-        autotask "${depends_on_task_name}"
+        execute_script "${AUTOTASK}" "${depends_on_task_name}"
     }
 
     # Inner function is reached via calls from task.dependencies
@@ -19,7 +19,7 @@ execute_task_dependencies() (
 
     task.dependencies
 )
-export -f execute_task_dependencies
+export -f task.execute_dependencies
 
 ###############################
 # Find the task file in the provided AUTOSHELL_TASK_PATH
