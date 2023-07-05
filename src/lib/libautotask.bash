@@ -21,28 +21,41 @@ execute_task_dependencies() (
 )
 export -f execute_task_dependencies
 
-export \
-    TASK_CONFIG_PREFIX="TASK_CONFIG" \
-    TASK_USER_CONFIG_PREFIX="TASK_USER_CONFIG"
-task.load_config() {
-    [ -f "${TASK_FILE/\.bash/\.toml}" ] && {
-        # import "$(find_lib autoshell.toml)"
-        load_toml "${TASK_FILE/\.bash/\.toml}" "${TASK_CONFIG_PREFIX}"
-    }
-}
-export -f task.load_config
+###############################
+# Find the task file in the provided AUTOSHELL_TASK_PATH
+# Globals:
+#   AUTOSHELL_TASK_PATH: Colon-separated list of paths to search for task files
+# Arguments:
+#   Name of the task to find
+# Outputs:
+#   The path of the first task file found matching the name
+# Returns:
+#   0 => Successfully found the library file
+#   1 => Library file not found
+###############################
+export TASK_FILE_TYPE=bash
+task.find_file() {
+    local \
+        task_name="${1/\./\/}" \
+        file_type="${2:-${TASK_FILE_TYPE}}" \
+        path \
+        plausible_task_file
+    local -a plausible_task_files
 
-task.get_config() {
-    local key_name="${1}"
-    declare -g "${key_name}"
-    local -n task_var="${key_name}"
+    local IFS=":"
+    for path in ${AUTOSHELL_TASK_PATH}; do
+        plausible_task_files=(
+            "${path}/${task_name}/$(basename "${task_name}").${file_type}"
+            "${path}/${task_name}.${file_type}"
+        )
+        for plausible_task_file in "${plausible_task_files[@]}"; do
+            if [ -f "${plausible_task_file}" ]; then
+                echo "${plausible_task_file}"
+                return 0
+            fi
+        done
+    done
 
-    local -n user_config_var="${TASK_USER_CONFIG_PREFIX}_${TASK_NAME/\./\/}_KEY_${key_name}"
-    if [ -n "${user_config_var-}" ]; then
-        task_var="${user_config_var}"
-    else
-        local -n config_var="${TASK_CONFIG_PREFIX}_${TASK_NAME/\./\/}_KEY_${key_name}"
-        task_var="${config_var-}"
-    fi
+    return 1
 }
-export -f task.get_config
+export -f task.find_file

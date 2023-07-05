@@ -373,29 +373,29 @@ EOC
     [ "${output}" = "${expected_task_output}" ]
 }
 
-# @test "autotask: parent task configs are presented as first-class configs to child tasks" {
-#     parent_task_name="task1"
-#     child_task_name="task1.child"
+@test "autotask: parent task configs are presented as first-class configs to child tasks" {
+    parent_task_name="task1"
+    child_task_name="task1.child"
 
-#     expected_task_output="${RANDOM}"
-#     cat <<EOT >"$(build_task "${child_task_name}")"
-# #!/usr/bin/env bash
+    expected_task_output="${RANDOM}"
+    cat <<EOT >"$(build_task "${child_task_name}")"
+#!/usr/bin/env bash
 
-# task.exec() {
-#     task.get_config test_value
+task.exec() {
+    task.get_config test_value
 
-#     echo "\${test_value}"
-# }
-# EOT
+    echo "\${test_value}"
+}
+EOT
 
-#     cat <<EOC >"$(build_task.config "${parent_task_name}")"
-# [task1]
-# test_value = default_value
-# EOC
+    cat <<EOC >"$(build_task.config "${parent_task_name}")"
+[task1]
+test_value = ${expected_task_output}
+EOC
 
-#     run -0 "${AUTOTASK}" "${child_task_name}"
+    run -0 "${AUTOTASK}" "${child_task_name}"
 
-#     echo "${output}"
+    echo "${output}"
 
-#     [ "${output}" = "${expected_task_output}" ]
-# }
+    [ "${output}" = "${expected_task_output}" ]
+}

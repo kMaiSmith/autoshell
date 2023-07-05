@@ -16,20 +16,20 @@ __script_parse_opts() {
     TASK_NAME="${1}"
 
     declare -g TASK_FILE
-    TASK_FILE="$(find_task "${TASK_NAME}")"
-
+    
     [ -n "${TASK_MAIN-}" ] || \
         TASK_MAIN="${TASK_NAME}"
-    [ -n "${TASK_FILE-}" ] || \
-        fatal "Task ${TASK_NAME} could not be found in the AUTOSHELL_TASK_PATH"
 }
 
 __script_init() {
     include "$(find_lib autotask)"
     include "$(find_lib autotask.tasklog)"
+    include "$(find_lib autotask.config)"
 
-    [ "${TASK_NAME}" = "${TASK_MAIN}" ] && \
-        [ -f "./project.toml" ] && load_toml "./project.toml" "${TASK_USER_CONFIG_PREFIX}"
+    TASK_FILE="$(task.find_file "${TASK_NAME}")"
+
+    [ -n "${TASK_FILE-}" ] || \
+        fatal "Task ${TASK_NAME} could not be found in the AUTOSHELL_TASK_PATH"
 
     tasklog.initialize
     if tasklog.is_complete "${TASK_NAME}"; then
@@ -46,7 +46,7 @@ __script_init() {
     [ "$(type -t task.dependencies)" = "function" ] && \
         execute_task_dependencies
 
-    task.load_config
+    task.load_config "${TASK_NAME}"
 
     tasklog.set_entry "${TASK_NAME}"
 }
