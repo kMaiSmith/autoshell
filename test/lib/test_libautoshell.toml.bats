@@ -56,3 +56,11 @@ EOC
 
     [ "${key1}" = "${expected_value}" ]
 }
+
+@test "toml.map_value: gracefully handles the config variable being unset, clearing stored values" {
+    my_var="stale"
+
+    toml.map_value ".doop" "my_var" "UNDEFINED_CONFIG_VAR"
+
+    [ -z "${my_var-}"]
+}

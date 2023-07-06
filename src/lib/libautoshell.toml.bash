@@ -30,8 +30,9 @@ toml.map_value() { # toml_key, dest_var[, config_var=$TOML_CONFIG_VAR]
         config_var_name="${3:-"${TOML_CONFIG_VAR}"}" \
         config_value
     local -n config_var="${config_var_name}"
-    config_value="${config_var["${toml_key}"]-}"
+    [ -n "${config_var[*]-}" ] && \
+        config_value="${config_var["${toml_key}"]-}"
 
-    declare -g "${dest_var}=${config_value}"
+    declare -g "${dest_var}=${config_value-}"
 }
 export -f toml.map_value
