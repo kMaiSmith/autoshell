@@ -25,6 +25,7 @@ build_config() {
     task_name="task1"
     task_config_key="key1"
     expected_value="${RANDOM}"
+    loaded_config_key=".${task_name}.${task_config_key}"
 
     cat <<EOC >"$(build_config "${task_name}")"
 [${task_name}]
@@ -33,7 +34,7 @@ EOC
 
     task.load_config "${task_name}"
 
-    [ "$(toml.get_value "${task_config_key}" "${task_name}" "${TASK_CONFIG_PREFIX}")" = "${expected_value}" ]
+    [ "$(toml.get_value "${loaded_config_key}" "${TASK_CONFIG_VAR}")" = "${expected_value}" ]
 }
 
 @test "task.load_config: also loads parent config when present" {
@@ -41,6 +42,7 @@ EOC
     task_name="${parent_task_name}.task1"
     task_config_key="key1"
     expected_value="${RANDOM}"
+    loaded_config_key=".${parent_task_name}.${task_config_key}"
 
     cat <<EOC >"$(build_config "${parent_task_name}")"
 [${parent_task_name}]
@@ -49,14 +51,15 @@ EOC
 
     task.load_config "${task_name}"
 
-    [ "$(toml.get_value "${task_config_key}" "${parent_task_name}" "${TASK_CONFIG_PREFIX}")" = "${expected_value}" ]
+    [ "$(toml.get_value "${loaded_config_key}" "${TASK_CONFIG_VAR}")" = "${expected_value}" ]
 }
 
-@test "task.load_config: loads user config into TASK_USER_CONFIG_PREFIX" {
+@test "task.load_config: loads user config into TASK_USER_CONFIG_VAR" {
     task_name="task1"
     TASK_MAIN="${task_name}"
     task_config_key="key1"
     expected_value="${RANDOM}"
+    loaded_config_key=".${task_name}.${task_config_key}"
 
     cat <<EOC >"./project.toml"
 [${task_name}]
@@ -65,7 +68,7 @@ EOC
 
     task.load_config "${task_name}"
 
-    [ "$(toml.get_value "${task_config_key}" "${task_name}" "${TASK_USER_CONFIG_PREFIX}")" = "${expected_value}" ]
+    [ "$(toml.get_value "${loaded_config_key}" "${TASK_USER_CONFIG_VAR}")" = "${expected_value}" ]
 }
 
 @test "task.load_config: does not load user config when not running as main task" {
@@ -80,7 +83,7 @@ EOC
 
     task.load_config "${task_name}"
 
-    [ -z "$(toml.get_value "${task_config_key}" "${task_name}" "${TASK_USER_CONFIG_PREFIX}")" ]
+    [ -z "$(toml.get_value "${task_config_key}" "${task_name}" "${TASK_USER_CONFIG_VAR}")" ]
 }
 
 @test "task.get_config: copies the TOML loaded config value into the key name variable" {

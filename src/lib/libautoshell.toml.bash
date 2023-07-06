@@ -1,55 +1,37 @@
 #!/usr/bin/env bash
 
-export TOML_PREFIX="TOML"
+export TOML_CONFIG_VAR="TOML_CONFIG"
 toml.load() { # toml_file[, toml_prefix=$TOML_PREFIX]
-    local \
-        current_heading="default" \
-        current_key \
-        current_value \
-        global_var_name \
-        line \
         toml_file="${1}" \
-        toml_prefix="${2:-"${TOML_PREFIX}"}"
+        config_var="${2:-"${TOML_CONFIG_VAR}"}"
 
-    while read -r line; do
-        case "${line}" in
-        \[*\])
-            current_heading="$(sed -e 's/\[\(.*\)\]/\1/' <<< "${line}")"
-            ;;
-        *\ \=\ *)
-            current_key="$(sed -e 's/^\(.*\) = .*$/\1/' <<< "${line}")"
-            current_value="$(sed -e 's/^.* = \(.*\)$/\1/' <<< "${line}")"
+    include "$(find_lib autoshell.toml.parser)"
 
-            if [ -n "${current_value}" ]; then
-                global_var_name="${toml_prefix}_${current_heading/\./_}_KEY_${current_key}"
-                declare -gx "${global_var_name}"
-                local -n ref_var="${global_var_name}"
-                ref_var="${current_value}"
-            fi
-            ;;
-        esac
-    done < <(cat "${toml_file}"; echo)
+    declare -gA "${config_var}"
+
+    tomlparser.parse "${config_var}" < "${toml_file}"
 }
 export -f toml.load
 
 toml.get_value() { # toml_key, toml_section[, toml_prefix=$TOML_PREFIX]
     local \
         toml_key="${1}" \
-        toml_section="${2}" \
-        toml_prefix="${3:-"${TOML_PREFIX}"}"
+        config_var_name="${2:-"${TOML_CONFIG_VAR}"}"
 
-    toml.map_value "${toml_key}" "${toml_section}" "${toml_prefix}" TOML_VALUE
+    toml.map_value "${toml_key}" TOML_VALUE "${config_var_name}"
 
     echo "${TOML_VALUE-}"
 }
 
-toml.map_value() { # toml_key, toml_section[, toml_prefix=$TOML_PREFIX, dest_var=$toml_key]
+toml.map_value() { # toml_key, dest_var[, config_var=$TOML_CONFIG_VAR]
     local \
         toml_key="${1}" \
-        toml_section="${2}" \
-        toml_prefix="${3:-"${TOML_PREFIX}"}" \
-        dest_var="${4:-${1}}"
+        dest_var="${2}" \
+        config_var_name="${3:-"${TOML_CONFIG_VAR}"}" \
+        config_value
+    local -n config_var="${config_var_name}"
+    config_value="${config_var["${toml_key}"]-}"
 
-    declare -gn "${dest_var}=${toml_prefix}_${toml_section}_KEY_${toml_key}"
+    declare -g "${dest_var}=${config_value}"
 }
 export -f toml.map_value
