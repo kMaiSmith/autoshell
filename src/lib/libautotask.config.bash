@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 export \
-    TASK_CONFIG_PREFIX="TASK_CONFIG" \
-    TASK_USER_CONFIG_PREFIX="TASK_USER_CONFIG"
+    TASK_CONFIG_VAR="TASK_CONFIG" \
+    TASK_USER_CONFIG_VAR="TASK_USER_CONFIG"
 task.load_config() {
     local \
         task_name="${1}" \
@@ -12,12 +12,12 @@ task.load_config() {
         IFS="."
 
     [ "${task_name}" = "${TASK_MAIN-}" ] && [ -f "./project.toml" ] && \
-        toml.load "./project.toml" "${TASK_USER_CONFIG_PREFIX}"
+        toml.load "./project.toml" "${TASK_USER_CONFIG_VAR}"
 
     for task_part in ${task_name}; do
         task="${task:+${task}.}${task_part}"
         if toml_file="$(task.find_file "${task}" toml)"; then
-            toml.load "${toml_file}" "${TASK_CONFIG_PREFIX}"
+            toml.load "${toml_file}" "${TASK_CONFIG_VAR}"
         fi
     done
 }
@@ -30,23 +30,21 @@ task.get_config() { # key_name[, task_name=$TASK_NAME]
     export "${key_name}"
     local -n key_ref="${key_name}"
 
-    task.get_config^try_prefix "${TASK_USER_CONFIG_PREFIX}"
+    task.get_config^try_prefix "${TASK_USER_CONFIG_VAR}"
     [ -n "${key_ref-}" ] || \
-        task.get_config^try_prefix "${TASK_CONFIG_PREFIX}"
+        task.get_config^try_prefix "${TASK_CONFIG_VAR}"
 }
 task.get_config^try_prefix() {
     local \
-        toml_prefix="${1}" \
-        toml_section="" \
+        config_var="${1}" \
+        toml_key="" \
         task_part \
         IFS="."
-    local -a toml_config=()
 
     for task_part in ${task_name}; do
-        toml_section="${toml_section:+${toml_section}_}${task_part}"
-        toml_config=("${key_name}" "${toml_section}" "${toml_prefix}")
-        if [ -n "$(toml.get_value "${toml_config[@]}")" ]; then
-            toml.map_value "${toml_config[@]}"
+        toml_key="${toml_key-}.${task_part}"
+        if [ -n "$(toml.get_value "${toml_key}.${key_name}" "${config_var}")" ]; then
+            toml.map_value "${toml_key}.${key_name}" "${key_name}" "${config_var}"
         fi
     done
 }

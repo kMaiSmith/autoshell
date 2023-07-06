@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-tomlparser.parse() {
+tomlparser.parse() { # config_var <<< TOML Data
     local \
         heading="" \
         key="" \
@@ -49,7 +49,6 @@ tomlparser.parse() {
                 ;;
             $']')
                 [ -z "${quote-}" ] && {
-                    log INFO "]"
                     _flush_key
                     array_index=""
                     break
@@ -57,12 +56,11 @@ tomlparser.parse() {
                 ;;
             $',')
                 [ -z "${quote-}" ] && {
-                    log INFO ","
                     _flush_value
                     array_index=$((array_index + 1))
                 }
                 ;;
-            $'')
+            $''|$' ')
                 [ -z "${quote-}" ] || \
                     ref+=" "
                 ;;

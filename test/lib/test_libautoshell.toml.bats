@@ -13,10 +13,10 @@ EOC
 
     toml.load "${toml_file}"
 
-    [ "${TOML_heading1_KEY_key1}" = "${expected_value}" ]
+    [ "${TOML_CONFIG[.heading1.key1]}" = "${expected_value}" ]
 }
 
-@test "toml.load: can override variable prefix values are loaded into" {
+@test "toml.load: can override config variable values are loaded into" {
     toml_file="${BATS_TEST_TMPDIR}/config.toml"
     expected_value="${RANDOM}"
     cat <<EOC >"${toml_file}"
@@ -24,9 +24,9 @@ EOC
 key1 = ${expected_value}
 EOC
 
-    toml.load "${toml_file}" "MY_PREFIX"
+    toml.load "${toml_file}" "MY_CONFIG"
 
-    [ "${MY_PREFIX_heading1_KEY_key1}" = "${expected_value}" ]
+    [ "${MY_CONFIG[.heading1.key1]}" = "${expected_value}" ]
 }
 
 @test "toml.get_value: echos loaded toml environment variable value for the header and key" {
@@ -39,7 +39,7 @@ EOC
 
     toml.load "${toml_file}"
 
-    [ "$(toml.get_value "key1" "heading1")" = "${expected_value}" ]
+    [ "$(toml.get_value ".heading1.key1")" = "${expected_value}" ]
 }
 
 @test "toml.map_value: references loaded toml environment variable to variable named toml_key" {
@@ -52,7 +52,7 @@ EOC
 
     toml.load "${toml_file}"
 
-    toml.map_value "key1" "heading1"
+    toml.map_value ".heading1.key1" "key1"
 
     [ "${key1}" = "${expected_value}" ]
 }
