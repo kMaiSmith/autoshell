@@ -1,13 +1,13 @@
 [project]
-name = structured-shell
-maintainer = Kyle Smith <kyle@kmaismith.com>
-description = '''
-Structured Shell (STSH) is a script execution framework extending the power of
-  BASH Shell scripting with safer programming paradigms.
-'''
+name = "structured-shell"
+maintainer = "Kyle Smith <kyle@kmaismith.com>"
+# description = '''
+# Structured Shell (STSH) is a script execution framework extending the power of
+#   BASH Shell scripting with safer programming paradigms.
+# '''
 
 [build]
-build_root = ${PROJECT_ROOT}/build
+build_root = "${PROJECT_ROOT}/build"
 
 [hello_world]
-greeting = Salutations
+greeting = "Salutations"

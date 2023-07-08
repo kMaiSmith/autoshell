@@ -1,0 +1,8 @@
+[package]
+archive = "${PROJECT_ROOT}/build/autoshell.tar.gz"
+stage.dir = "${PROJECT_ROOT}/build/stage"
+stage.files = [
+    "${PROJECT_ROOT}/src/lib:lib/autoshell",
+    "${PROJECT_ROOT}/src/bin:bin",
+    "${PROJECT_ROOT}/tasks:share/autoshell/tasks"
+]

@@ -18,7 +18,7 @@ __script_parse_opts() {
 
     declare -g TASK_FILE
     
-    LOG_CONTEXT_BUILDER="autotask:${TASK_NAME}:"
+    # LOG_CONTEXT_BUILDER="autotask:${TASK_NAME}:"
     [ -n "${TASK_MAIN-}" ] || \
         TASK_MAIN="${TASK_NAME}"
 }

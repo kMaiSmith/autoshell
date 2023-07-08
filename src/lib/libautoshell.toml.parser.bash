@@ -25,7 +25,7 @@ tomlparser.parse_line() {
         last_char="" \
         char_index=0
 
-    while read -n1 char; do
+    while read -rN1 char; do
         tomlparser.parse_char "${char_index}" "${char-}" "${last_char-}"
         char_index=$(( char_index + 1 ))
         last_char="${char-}"
@@ -45,6 +45,8 @@ tomlparser.parse_char() {
         char_index="${1}" \
         char="${2:- }" \
         last_char="${3:- }"
+
+    [ "${char}" = $'\n' ] && return 0
 
     case "${mode}" in
     key)
@@ -112,6 +114,9 @@ tomlparser.parse_char^key() {
         ;;
     $'"')
         quote="${char}"
+        ;;
+    $'#')
+        mode=comment
         ;;
     $' ')
         ;;
