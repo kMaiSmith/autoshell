@@ -332,7 +332,7 @@ EOT
 
     cat <<EOC >"$(build_task.config "${task_name}")"
 [task1]
-test_value = ${expected_task_output}
+test_value = "${expected_task_output}"
 EOC
 
     run "${AUTOTASK}" "${task_name}"
@@ -358,18 +358,19 @@ EOT
 
     cat <<EOC >"$(build_task.config "${task_name}")"
 [task1]
-test_value = default_value
+test_value = "default_value"
 EOC
 
     cat <<EOC > "./project.toml"
 [task1]
-test_value = ${expected_task_output}
+test_value = "${expected_task_output}"
 EOC
 
-    run -0 "${AUTOTASK}" "${task_name}"
+    run "${AUTOTASK}" "${task_name}"
 
     echo "${output}"
 
+    [ "${status}" -eq 0 ]
     [ "${output}" = "${expected_task_output}" ]
 }
 
@@ -390,7 +391,7 @@ EOT
 
     cat <<EOC >"$(build_task.config "${parent_task_name}")"
 [task1]
-test_value = ${expected_task_output}
+test_value = "${expected_task_output}"
 EOC
 
     run -0 "${AUTOTASK}" "${child_task_name}"

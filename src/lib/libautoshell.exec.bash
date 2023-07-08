@@ -28,13 +28,15 @@ export -f try
 #   1 and exits the current process
 ###############################
 fatal() {
-    local _message="${1}"
+    local _message="${1-}"
 
-    if type log &>/dev/null; then
-        log FATAL "${_message}" "${FUNCNAME[1]-}"
-    else
-        echo "FATAL: ${_message}"
-    fi
+    [ -n "${_message}" ] && {
+        if type log &>/dev/null; then
+            log FATAL "${_message}" "${FUNCNAME[1]-}"
+        else
+            echo "FATAL: ${_message}"
+        fi
+    }
 
     exit 1
 }

@@ -29,7 +29,7 @@ build_config() {
 
     cat <<EOC >"$(build_config "${task_name}")"
 [${task_name}]
-${task_config_key} = ${expected_value}
+${task_config_key} = "${expected_value}"
 EOC
 
     task.load_config "${task_name}"
@@ -46,7 +46,7 @@ EOC
 
     cat <<EOC >"$(build_config "${parent_task_name}")"
 [${parent_task_name}]
-${task_config_key} = ${expected_value}
+${task_config_key} = "${expected_value}"
 EOC
 
     task.load_config "${task_name}"
@@ -63,7 +63,7 @@ EOC
 
     cat <<EOC >"./project.toml"
 [${task_name}]
-${task_config_key} = ${expected_value}
+${task_config_key} = "${expected_value}"
 EOC
 
     task.load_config "${task_name}"
@@ -93,7 +93,7 @@ EOC
 
     cat <<EOC >"$(build_config "${task_name}")"
 [${task_name}]
-${task_config_key} = ${expected_value}
+${task_config_key} = "${expected_value}"
 EOC
 
     task.load_config "${task_name}"
@@ -112,7 +112,7 @@ EOC
 
     cat <<EOC >"$(build_config "${TASK_NAME}")"
 [${TASK_NAME}]
-${task_config_key} = ${expected_value}
+${task_config_key} = "${expected_value}"
 EOC
 
     task.load_config "${TASK_NAME}"
@@ -132,7 +132,7 @@ EOC
 
     cat <<EOC >"$(build_config "${parent_task}")"
 [${parent_task}]
-${task_config_key} = ${expected_value}
+${task_config_key} = "${expected_value}"
 EOC
 
     task.load_config "${TASK_NAME}"
@@ -153,11 +153,11 @@ EOC
 
     cat <<EOC >"$(build_config "${TASK_NAME}")"
 [${TASK_NAME}]
-${task_config_key} = default
+${task_config_key} = "default"
 EOC
     cat <<EOC >"./project.toml"
 [${task_parent_name}]
-${task_config_key} = ${expected_value}
+${task_config_key} = "${expected_value}"
 EOC
 
     task.load_config "${TASK_NAME}"

@@ -8,7 +8,7 @@ source "src/lib/libautoshell.toml.bash"
     expected_value="${RANDOM}"
     cat <<EOC >"${toml_file}"
 [heading1]
-key1 = ${expected_value}
+key1 = "${expected_value}"
 EOC
 
     toml.load "${toml_file}"
@@ -21,7 +21,7 @@ EOC
     expected_value="${RANDOM}"
     cat <<EOC >"${toml_file}"
 [heading1]
-key1 = ${expected_value}
+key1 = "${expected_value}"
 EOC
 
     toml.load "${toml_file}" "MY_CONFIG"
@@ -34,7 +34,7 @@ EOC
     expected_value="${RANDOM}"
     cat <<EOC >"${toml_file}"
 [heading1]
-key1 = ${expected_value}
+key1 = "${expected_value}"
 EOC
 
     toml.load "${toml_file}"
@@ -47,7 +47,7 @@ EOC
     expected_value="${RANDOM}"
     cat <<EOC >"${toml_file}"
 [heading1]
-key1 = ${expected_value}
+key1 = "${expected_value}"
 EOC
 
     toml.load "${toml_file}"
@@ -73,7 +73,7 @@ EOC
     expected_value2="${RANDOM}"
     cat <<EOC >"${toml_file}"
 [heading1]
-key1 = [ ${expected_value1}, ${expected_value2} ]
+key1 = [ "${expected_value1}", "${expected_value2}" ]
 EOC
 
     toml.load "${toml_file}"
