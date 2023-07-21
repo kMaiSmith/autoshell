@@ -122,7 +122,7 @@ tomlparser.parse_char^key() {
         ;;
     *)
         [ "${last_char}" = " " ] && [ "${char_index}" -gt 0 ] && \
-            tomlparser.parse_error "Unquoted keys cannot have spaces"
+            tomlparser.parse_error "Unexpected char: ${char}: Unquoted keys cannot have spaces"
         key+="${char}"
         ;;
     esac
